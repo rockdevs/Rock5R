@@ -20,19 +20,18 @@ public class RockTab extends JTabbedPane {
 
     public RockTab() {}
 
-    public void init(){
+    public void initTab(){
         this.setBackground(new Color(25, 25, 25));
         this.setForeground(Color.white);
     }
 
     public void addTab(Component component) throws IOException {
-        init();
+        initTab();
         if(components.size()<6){
             components.add(component);
             Image iconExecute = ImageIO.read(new File("src/main/java/icon/cancel_dark.png"));
             this.addTab("Request Page "+components.size(),new ImageIcon(iconExecute),component);
-            if(component instanceof BaseTabbedPane pane)
-                pane.initPane();
+            if(component instanceof BaseTabbedPane pane) pane.initPane();
         }else {
             JOptionPane.showMessageDialog(this,"Oupst!! Tabs count must be low from 7");
         }
