@@ -1,20 +1,21 @@
 package core.rest.concretes;
 
+import core.rest.abstracts.RockRequest;
 import core.rest.helper.HttpProtocol;
 import core.rest.helper.RequestMethod;
+import exception.InvalidUrlAddressException;
 
 import javax.net.ssl.HttpsURLConnection;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
  * @author Vugar Mammadli
  */
-public class RequestQueryManager {
+public final class RequestQueryManager implements RockRequest {
 
     private HttpProtocol protocol;
 
@@ -24,13 +25,10 @@ public class RequestQueryManager {
 
     private Map<String,String> parameters;
 
-
+    private URLConnection connection;
 
     private URL urlPort;
 
-    private HttpURLConnection connectionHttp;
-
-    private HttpsURLConnection connectionHttps;
 
     private final QueryMemento memento = new QueryMemento();
 
@@ -38,9 +36,18 @@ public class RequestQueryManager {
     public RequestQueryManager(HttpProtocol protocol, String requestAddress,
                                RequestMethod requestMethod, Map<String, String> parameters) {
         this.protocol = protocol;
-        this.requestAddress = requestAddress;
+        this.requestAddress = requestAddress.trim();
         this.requestMethod = requestMethod;
         this.parameters = parameters;
+    }
+
+
+
+
+    @Override
+    public void request() throws InvalidUrlAddressException, IOException {
+        refactorRequestAddress();
+        initRequest();
     }
 
     public  String getParamsAsString(Map<String, String> params) {
@@ -60,9 +67,17 @@ public class RequestQueryManager {
     }
 
 
-    public void request(){
-
+    private void refactorRequestAddress() throws InvalidUrlAddressException {
+        if(requestAddress.isEmpty())
+            throw new InvalidUrlAddressException();
+        if(requestAddress.startsWith("http://") || requestAddress.startsWith("https://"))
+            requestAddress  = requestAddress.split("//")[1];
     }
 
+
+    private void initRequest() throws IOException {
+        urlPort = new URL(protocol.getValue() + requestAddress);
+        connection = protocol.openConnection(urlPort,requestMethod);
+    }
 
 }
