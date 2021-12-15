@@ -32,7 +32,7 @@ public class TopPanel extends JPanel implements Component {
         Image iconOpenP = ImageIO.read(new File("src/main/java/icon/install_dark.png"));
         Image iconReload = ImageIO.read(new File("src/main/java/icon/buildLoadChanges_dark.png"));
         Image iconGenerate = ImageIO.read(new File("src/main/java/icon/compile_dark.png"));
-        Image iconRefactor = ImageIO.read(new File("src/main/java/icon/lightning_dark.png"));
+        Image iconRefactor = ImageIO.read(new File("src/main/java/icon/forceRefresh_dark.png"));
         Image iconExecute = ImageIO.read(new File("src/main/java/icon/execute_dark.png"));
 
         JButton newProject = componentFactory.factoryButton("New");
@@ -58,7 +58,7 @@ public class TopPanel extends JPanel implements Component {
         JButton generate = componentFactory.factoryButton("Generate");
         generate.setIcon(new ImageIcon(iconGenerate));
 
-        JButton refactor = componentFactory.factoryButton("Refactor");
+        JButton refactor = componentFactory.factoryButton("Force Refresh");
         refactor.setIcon(new ImageIcon(iconRefactor));
 
         this.add(newProject);

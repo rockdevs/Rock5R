@@ -10,8 +10,10 @@ import context.concretes.tabbed.BaseTabbedPane;
 import factory.abstracts.*;
 import helper.ThemeChanger;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 
 public class MainFrame extends AbstractFrameInitializer {
@@ -26,6 +28,12 @@ public class MainFrame extends AbstractFrameInitializer {
     private FlatLaf flatLightLaf;
 
     {
+        try {
+            this.setIconImage(ImageIO.read(new File("src/main/java/icon/lightning.png")));
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(new JFrame("Error"),"Init Application Icon exception");
+        }
         componentFactory = (AbstractComponentFactory) FactoryManager.COMPONENT.get();
         layerFactory = (AbstractLayoutFactory) FactoryManager.LAYOUT.get();
         windowsFactory = (AbstractWindowsFactory) FactoryManager.WINDOWS.get();

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class RockTab extends JTabbedPane {
+
     private final ArrayList<Component> components = new ArrayList<>();
 
     private final Font fontTitle = new Font("Arial", Font.BOLD, 12);
@@ -20,7 +21,8 @@ public class RockTab extends JTabbedPane {
     public RockTab() {}
 
     public void init(){
-        this.setFont(fontTitle);
+        this.setBackground(new Color(25, 25, 25));
+        this.setForeground(Color.white);
     }
 
     public void addTab(Component component) throws IOException {
@@ -28,11 +30,11 @@ public class RockTab extends JTabbedPane {
         if(components.size()<6){
             components.add(component);
             Image iconExecute = ImageIO.read(new File("src/main/java/icon/cancel_dark.png"));
-            this.addTab("Unknown Request",new ImageIcon(iconExecute),component);
+            this.addTab("Request Page "+components.size(),new ImageIcon(iconExecute),component);
             if(component instanceof BaseTabbedPane pane)
                 pane.initPane();
         }else {
-            JOptionPane.showMessageDialog(this,"Tabs count must be low from 5");
+            JOptionPane.showMessageDialog(this,"Oupst!! Tabs count must be low from 7");
         }
     }
 
