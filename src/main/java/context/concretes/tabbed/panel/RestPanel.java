@@ -67,6 +67,13 @@ public class RestPanel extends JPanel implements Component {
 
         });
 
+        JButton saveButton = new JButton();
+        Image saveIcon = ImageIO.read(new File("src/main/java/icon/save.png"));
+        saveButton.setIcon(new ImageIcon(saveIcon));
+        saveButton.addActionListener((e)->{
+
+        });
+
         String[] items = {"GET","POST","DELETE","HEAD","PUT"};
         JComboBox<?> requests = new JComboBox<>(items);
         requests.setSelectedIndex(0);
@@ -80,6 +87,7 @@ public class RestPanel extends JPanel implements Component {
         panel.add(protocol);
         panel.add(urlField);
         panel.add(historyButton);
+        panel.add(saveButton);
         panel.add(requests);
         panel.add(requestButton);
 
@@ -90,8 +98,10 @@ public class RestPanel extends JPanel implements Component {
     private void initExecutePanel(){
         JPanel basePanel = new JPanel(new BorderLayout());
         initQueryParamsPanel();
+        initAuthorization();
         initHeader();
         initBody();
+        initSettings();
         basePanel.add(topTabbedPane);
         this.add(basePanel);
     }
@@ -99,18 +109,17 @@ public class RestPanel extends JPanel implements Component {
     private void initQueryParamsPanel(){
         JPanel  basePanel = new JPanel(new BorderLayout());
         String[][] rec = {
-                { "", ""},
-                { "", "" },
-                { "", "" },
-                { "", ""},
-                { "", ""},
-                { "", ""},
-                { "", ""},
-                { "", ""},
-                { "", ""},
-                { "", ""},
+                { "", "",""},
+                { "", "",""},
+                { "", "",""},
+                { "", "",""},
+                { "", "",""},
+                { "", "",""},
+                { "", "",""},
+                { "", "",""},
+
         };
-        String[] header = { "Key", "Value"};
+        String[] header = { "Key", "Value","Description"};
         JTable table = new JTable(rec, header);
         table.getColumnModel().setColumnMargin(20);
         basePanel.add(new JScrollPane(table));
@@ -129,6 +138,17 @@ public class RestPanel extends JPanel implements Component {
         this.topTabbedPane.add(panel,"Body");
     }
 
+    private void initAuthorization(){
+        JPanel  panel = new JPanel();
+
+        this.topTabbedPane.add(panel,"Authorization");
+    }
+
+    private void initSettings(){
+        JPanel  panel = new JPanel();
+
+        this.topTabbedPane.add(panel,"Settings");
+    }
 
     private void initResponsePanel(){
         JPanel  panel = new JPanel(new BorderLayout());
