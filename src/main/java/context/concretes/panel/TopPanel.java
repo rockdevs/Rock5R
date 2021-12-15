@@ -38,7 +38,12 @@ public class TopPanel extends JPanel implements Component {
         JButton newProject = componentFactory.factoryButton("New");
         newProject.setIcon(new ImageIcon(iconNewProject));
         newProject.addActionListener((e)->{
-            mainFrame.addRock();
+            try {
+                mainFrame.addRock();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this,"Unknown Exception.Please contact with RockSupport");
+            }
         });
 
         JButton openProject = componentFactory.factoryButton("Open Tab");

@@ -1,6 +1,7 @@
 package context.concretes.frame;
 
 import com.formdev.flatlaf.*;
+import com.formdev.flatlaf.ui.FlatTabbedPaneUI;
 import context.abstracts.AbstractFrameInitializer;
 import context.concretes.menu.BaseMenuBar;
 import context.concretes.panel.TopPanel;
@@ -53,7 +54,7 @@ public class MainFrame extends AbstractFrameInitializer {
         this.setVisible(false);
     }
 
-    public void addRock(){
+    public void addRock() throws IOException {
         rockTab.addTab(new BaseTabbedPane());
     }
 
@@ -81,7 +82,7 @@ public class MainFrame extends AbstractFrameInitializer {
         this.add(topPanel, BorderLayout.NORTH);
     }
 
-    private void initCenter(){
+    private void initCenter() throws IOException {
         rockTab.addTab(new BaseTabbedPane());
     }
 
