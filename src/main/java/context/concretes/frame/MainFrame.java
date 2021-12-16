@@ -29,7 +29,7 @@ public class MainFrame extends AbstractFrameInitializer {
 
     {
         try {
-            this.setIconImage(ImageIO.read(new File("src/main/java/icon/lightning.png")));
+            this.setIconImage(ImageIO.read(new File("src/main/java/icon/5R.png")));
         } catch (IOException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(new JFrame("Error"),"Init Application Icon exception");
@@ -54,6 +54,7 @@ public class MainFrame extends AbstractFrameInitializer {
         initMenuBar();
         initTopBar();
         initCenter();
+        initSouth();
     }
 
     @Override
@@ -99,7 +100,9 @@ public class MainFrame extends AbstractFrameInitializer {
     }
 
     private void initSouth(){
+        JPanel panel = new JPanel();
 
+        this.add(panel,BorderLayout.SOUTH);
     }
 
     private void initEast(){

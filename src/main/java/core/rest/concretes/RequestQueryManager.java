@@ -1,21 +1,24 @@
 package core.rest.concretes;
 
-import core.rest.abstracts.RockRequest;
+import core.rest.abstracts.RequestQuery;
 import core.rest.helper.HttpProtocol;
 import core.rest.helper.RequestMethod;
 import exception.InvalidUrlAddressException;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.*;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 /**
  * @author Vugar Mammadli
  */
-public final class RequestQueryManager implements RockRequest {
+public final class RequestQueryManager implements RequestQuery {
 
     private HttpProtocol protocol;
 
@@ -29,55 +32,54 @@ public final class RequestQueryManager implements RockRequest {
 
     private URL urlPort;
 
+    private HttpRequest request;
+
+    private HttpResponse<String> response;
+
+    private HttpClient client;
+
+    private HttpRequest.BodyPublisher bodyPublisher;
+
 
     private final QueryMemento memento = new QueryMemento();
 
 
     public RequestQueryManager(HttpProtocol protocol, String requestAddress,
-                               RequestMethod requestMethod, Map<String, String> parameters) {
+                               RequestMethod requestMethod, Map<String, String> parameters) throws InvalidUrlAddressException {
         this.protocol = protocol;
         this.requestAddress = requestAddress.trim();
         this.requestMethod = requestMethod;
         this.parameters = parameters;
-    }
 
-
-
-
-    @Override
-    public void request() throws InvalidUrlAddressException, IOException {
         refactorRequestAddress();
-        initRequest();
     }
-
-    public  String getParamsAsString(Map<String, String> params) {
-        StringBuilder result = new StringBuilder();
-
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            result.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
-            result.append("=");
-            result.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
-            result.append("&");
-        }
-        String resultString = result.toString();
-
-        return resultString.length() > 0
-                ? resultString.substring(0, resultString.length() - 1)
-                : resultString;
-    }
-
-
     private void refactorRequestAddress() throws InvalidUrlAddressException {
         if(requestAddress.isEmpty())
             throw new InvalidUrlAddressException();
         if(requestAddress.startsWith("http://") || requestAddress.startsWith("https://"))
             requestAddress  = requestAddress.split("//")[1];
+        if(!requestAddress.startsWith("www."))
+            requestAddress = "www."+requestAddress;
+    }
+
+    @Override
+    public void request() throws URISyntaxException, IOException, InterruptedException {
+        request = this.start()
+                .timeout(Duration.of(5, ChronoUnit.SECONDS))
+                .GET()
+                .build();
+        response = HttpClient.newHttpClient()
+                .send(request,HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+
     }
 
 
-    private void initRequest() throws IOException {
-        urlPort = new URL(protocol.getValue() + requestAddress);
-        connection = protocol.openConnection(urlPort,requestMethod);
+    public HttpRequest.Builder start() throws URISyntaxException {
+        return  HttpRequest.newBuilder()
+                .uri(new URI(protocol.getValue()+requestAddress));
     }
+
+
 
 }

@@ -1,20 +1,27 @@
 package context.concretes.tabbed.panel;
 
 import context.abstracts.Component;
+import core.rest.abstracts.RequestQuery;
+import core.rest.concretes.RequestQueryManager;
+import core.rest.helper.HttpProtocol;
+import core.rest.helper.RequestMethod;
+import exception.InvalidUrlAddressException;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.HashMap;
 
 public class RestPanel extends JPanel implements Component {
 
     private final FlowLayout flowLayout = new FlowLayout(FlowLayout.LEFT);
     private JTabbedPane topTabbedPane;
     private JTabbedPane responseTabbedPane;
+    private RequestQuery requestQuery;
 
 
     {
@@ -82,8 +89,14 @@ public class RestPanel extends JPanel implements Component {
         Image requestIcon = ImageIO.read(new File("src/main/java/icon/commit_dark.png"));
         requestButton.setIcon(new ImageIcon(requestIcon));
         requestButton.addActionListener((e)->{
+            try {
+                new RequestQueryManager(HttpProtocol.HTTPS,"gozelislam.com", RequestMethod.GET,new HashMap<>()).request();
+            } catch (InvalidUrlAddressException | URISyntaxException | IOException | InterruptedException ex) {
+                ex.printStackTrace();
+            }
 
         });
+
         panel.add(protocol);
         panel.add(urlField);
         panel.add(historyButton);
@@ -156,6 +169,14 @@ public class RestPanel extends JPanel implements Component {
         responseArea.setRows(40);
         panel.add(responseArea);
         this.responseTabbedPane.add(panel,"Response");
+        this.add(responseTabbedPane,BorderLayout.PAGE_END);
+        initPreview();
+    }
+
+    private void initPreview(){
+        JPanel  panel = new JPanel(new BorderLayout());
+
+        this.responseTabbedPane.add(panel,"Preview");
         this.add(responseTabbedPane,BorderLayout.PAGE_END);
     }
 
