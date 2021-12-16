@@ -90,9 +90,15 @@ public class RestPanel extends JPanel implements Component {
         requestButton.setIcon(new ImageIcon(requestIcon));
         requestButton.addActionListener((e)->{
             try {
-                new RequestQueryManager(HttpProtocol.HTTPS,"gozelislam.com", RequestMethod.GET,new HashMap<>()).request();
-            } catch (InvalidUrlAddressException | URISyntaxException | IOException | InterruptedException ex) {
+                new RequestQueryManager(HttpProtocol.HTTP,"https://www.namazvaxti.org/",RequestMethod.GET,new HashMap<>()).request();
+            } catch (InvalidUrlAddressException ex) {
                 ex.printStackTrace();
+            } catch (URISyntaxException uriSyntaxException) {
+                uriSyntaxException.printStackTrace();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            } catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
             }
 
         });

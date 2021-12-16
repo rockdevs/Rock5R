@@ -5,7 +5,7 @@ import core.rest.helper.HttpProtocol;
 import core.rest.helper.RequestMethod;
 import exception.InvalidUrlAddressException;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -32,14 +32,10 @@ public final class RequestQueryManager implements RequestQuery {
 
     private URL urlPort;
 
-    private HttpRequest request;
+    private OutputStream outputStream;
 
-    private HttpResponse<String> response;
 
-    private HttpClient client;
-
-    private HttpRequest.BodyPublisher bodyPublisher;
-
+    int status;
 
     private final QueryMemento memento = new QueryMemento();
 
@@ -53,6 +49,7 @@ public final class RequestQueryManager implements RequestQuery {
 
         refactorRequestAddress();
     }
+
     private void refactorRequestAddress() throws InvalidUrlAddressException {
         if(requestAddress.isEmpty())
             throw new InvalidUrlAddressException();
@@ -64,22 +61,46 @@ public final class RequestQueryManager implements RequestQuery {
 
     @Override
     public void request() throws URISyntaxException, IOException, InterruptedException {
-        request = this.start()
-                .timeout(Duration.of(5, ChronoUnit.SECONDS))
-                .GET()
-                .build();
-        response = HttpClient.newHttpClient()
-                .send(request,HttpResponse.BodyHandlers.ofString());
-        System.out.println(response.body());
+        urlPort = new URL(protocol.getValue()+requestAddress);
+        connection  = protocol.openConnection(urlPort,requestMethod);
+        connection.setUseCaches(false);
+        connection.setDoOutput(true);
+//        connection.setRequestProperty("Content-Type",
+//                "application/x-www-form-urlencoded");
+//        connection.setRequestProperty("Content-Language", "en-US");
+        outputStream = new DataOutputStream(connection.getOutputStream());
+        outputStream.write(this.getParamsAsString(parameters).getBytes(StandardCharsets.UTF_8));
+        outputStream.flush();
+        outputStream.close();
+        connection.connect();
+
+
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(connection.getInputStream()));
+        String inputLine;
+        StringBuffer content = new StringBuffer();
+        while ((inputLine = in.readLine()) != null) {
+            content.append(inputLine);
+        }
+        System.out.println(content);
+        in.close();
 
     }
 
+    public  String getParamsAsString(Map<String, String> params)
+            throws UnsupportedEncodingException {
+        StringBuilder result = new StringBuilder();
 
-    public HttpRequest.Builder start() throws URISyntaxException {
-        return  HttpRequest.newBuilder()
-                .uri(new URI(protocol.getValue()+requestAddress));
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+            result.append("&");
+        }
+
+        String resultString = result.toString();
+        return resultString.length() > 0
+                ? resultString.substring(0, resultString.length() - 1)
+                : resultString;
     }
-
-
-
 }
