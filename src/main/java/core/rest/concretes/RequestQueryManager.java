@@ -1,18 +1,15 @@
 package core.rest.concretes;
 
 import core.rest.abstracts.RequestQuery;
+import core.rest.helper.ContentLang;
+import core.rest.helper.ContentType;
 import core.rest.helper.HttpProtocol;
 import core.rest.helper.RequestMethod;
 import exception.InvalidUrlAddressException;
 
 import java.io.*;
 import java.net.*;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 /**
@@ -65,9 +62,9 @@ public final class RequestQueryManager implements RequestQuery {
         connection  = protocol.openConnection(urlPort,requestMethod);
         connection.setUseCaches(false);
         connection.setDoOutput(true);
-//        connection.setRequestProperty("Content-Type",
-//                "application/x-www-form-urlencoded");
-//        connection.setRequestProperty("Content-Language", "en-US");
+        connection.setRequestProperty("Content-Type",
+                ContentType.JSON.get());
+        connection.setRequestProperty("Content-Language", ContentLang.EN.get());
         outputStream = new DataOutputStream(connection.getOutputStream());
         outputStream.write(this.getParamsAsString(parameters).getBytes(StandardCharsets.UTF_8));
         outputStream.flush();
@@ -87,14 +84,13 @@ public final class RequestQueryManager implements RequestQuery {
 
     }
 
-    public  String getParamsAsString(Map<String, String> params)
-            throws UnsupportedEncodingException {
+    public  String getParamsAsString(Map<String, String> params) {
         StringBuilder result = new StringBuilder();
 
         for (Map.Entry<String, String> entry : params.entrySet()) {
-            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+            result.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
             result.append("=");
-            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+            result.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
             result.append("&");
         }
 
