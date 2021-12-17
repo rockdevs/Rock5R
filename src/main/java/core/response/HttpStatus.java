@@ -1,6 +1,7 @@
 package core.response;
 
 public enum HttpStatus {
+
     CONTINUE(100,"Continue-This interim response indicates that the client should continue the request or ignore the response if the request is already finished."),
     SWITCHING_PROTOCOLS(101,"This code is sent in response to an Upgrade request header from the client and indicates the protocol the server is switching to."),
     PROCESSING(102,"This code indicates that the server has received and is processing the request, but no response is available yet."),

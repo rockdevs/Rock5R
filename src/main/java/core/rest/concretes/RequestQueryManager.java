@@ -1,5 +1,6 @@
 package core.rest.concretes;
 
+import core.response.RockResponse;
 import core.rest.abstracts.RequestQuery;
 import core.rest.helper.ContentLang;
 import core.rest.helper.ContentType;
@@ -45,6 +46,8 @@ public final class RequestQueryManager implements RequestQuery {
 
     private final StringBuffer responseContent = new StringBuffer();
 
+    RockResponse  response;
+
     private final QueryMemento memento = new QueryMemento();
 
 
@@ -84,22 +87,29 @@ public final class RequestQueryManager implements RequestQuery {
     }
 
     @Override
-    public String request() throws URISyntaxException, IOException, InterruptedException {
+    public RockResponse request() throws URISyntaxException, IOException, InterruptedException {
+        response  = new RockResponse();
         urlPort = new URL(protocol.getValue()+requestAddress);
         connection  = protocol.openConnection(urlPort,requestMethod);
+
+        connection.setRequestProperty("Content-Type", contentType.get());
+        connection.setRequestProperty("Content-Language", contentLang.get());
+
+
+        if(!parameters.isEmpty()){ // Request Header
+            for (String headerKey: parameters.keySet()){
+                connection.setRequestProperty(headerKey,parameters.get(headerKey));
+            }
+        }
 
         connection.setUseCaches(useCases);
         connection.setDoOutput(doOutput);
         connection.setDoInput(doInput);
-        connection.setRequestProperty("Content-Type", contentType.get());
-        connection.setRequestProperty("Content-Language", contentLang.get());
-
+        connection.connect();
         outputStream = new DataOutputStream(connection.getOutputStream());
-
         outputStream.write(this.getParamsAsString(parameters).getBytes(StandardCharsets.UTF_8));
         outputStream.flush();
         outputStream.close();
-
 
         bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String inputLine;
@@ -107,7 +117,9 @@ public final class RequestQueryManager implements RequestQuery {
             responseContent.append(inputLine);
 
         bufferedReader.close();
-        return responseContent.toString();
+        response.setResponseMessage(responseContent.toString());
+        response.setHeadersFields(connection.getHeaderFields());
+        return response;
     }
 
 

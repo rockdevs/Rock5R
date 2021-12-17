@@ -1,6 +1,7 @@
 package context.concretes.tabbed.panel;
 
 import context.abstracts.Component;
+import core.response.RockResponse;
 import core.rest.abstracts.RequestQuery;
 import core.rest.concretes.RequestQueryManager;
 import core.rest.helper.HttpProtocol;
@@ -16,7 +17,9 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.HashMap;
+import org.json.*;
 
 public class RestPanel extends JPanel implements Component {
 
@@ -33,9 +36,12 @@ public class RestPanel extends JPanel implements Component {
     private JTextField urlField;
     private JComboBox<?> requestMethod;
     private JTextArea responseArea;
+    private JTextArea headersArea;
     private String protocol;
     private String request;
-    private String response;
+    private RockResponse response;
+    private JSONObject jsonObject;
+    private JEditorPane jEditorPane;
 
     {
         topTabbedPane = new JTabbedPane();
@@ -108,8 +114,12 @@ public class RestPanel extends JPanel implements Component {
                 request =  (String)  requestMethod.getSelectedItem();
                 requestQuery = new RequestQueryManager(protocol,urlField.getText(),request,new HashMap<>());
                 response = requestQuery.request();
-                Document doc = Jsoup.parse(response);
-                responseArea.setText(doc.toString());
+                if (response != null) {
+                    Document doc = Jsoup.parse(response.getResponseMessage());
+                    jEditorPane.setText(doc.toString());
+                    responseArea.setText(doc.toString());
+                    headersArea.setText(response.getHeadersFields().toString().replace(", ","\n"));
+                }
             }catch (URISyntaxException exception){
                 exception.printStackTrace();
                 String message  = "URI must not be null";
@@ -122,12 +132,16 @@ public class RestPanel extends JPanel implements Component {
                 exception.printStackTrace();
                 String message  = "URI must not be null";
                 JOptionPane.showMessageDialog(this,message);
+            }catch (UnknownHostException exception){
+                exception.printStackTrace();
+                String message  = "Unknown URL address.Please try check address";
+                JOptionPane.showMessageDialog(this,message);
             }catch (IOException exception){
                 exception.printStackTrace();
-                String message  = "Unknown Exception";
+                String message  = "Unknown Exception :( Please contact Support";
                 JOptionPane.showMessageDialog(this,message);
             }
-
+            //java.net.UnknownHostException
         });
 
         panel.add(protocolJComboBox);
@@ -197,21 +211,46 @@ public class RestPanel extends JPanel implements Component {
     }
 
     private void initResponsePanel(){
-        JPanel  panel = new JPanel(new BorderLayout());
+        JPanel  panelResponse = new JPanel(new BorderLayout());
 
 
         responseArea = new JTextArea(40,100);
         JScrollPane scrollableTextArea = new JScrollPane(responseArea);
         scrollableTextArea.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollableTextArea.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        panel.add(scrollableTextArea);
-        this.responseTabbedPane.add(panel,"Response");
+
+        panelResponse.add(scrollableTextArea);
+        this.responseTabbedPane.add(panelResponse,"Response");
         this.add(responseTabbedPane,BorderLayout.PAGE_END);
+        initHeaders();
         initPreview();
+    }
+
+    private void initHeaders(){
+        JPanel  panelHeaders = new JPanel(new BorderLayout());
+
+        headersArea =  new JTextArea(40,100);
+        JScrollPane scrollableTextArea = new JScrollPane(headersArea);
+        scrollableTextArea.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollableTextArea.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        panelHeaders.add(scrollableTextArea);
+
+
+        this.responseTabbedPane.add(panelHeaders,"Headers");
+        this.add(responseTabbedPane,BorderLayout.PAGE_END);
     }
 
     private void initPreview(){
         JPanel  panel = new JPanel(new BorderLayout());
+
+        jEditorPane = new JEditorPane();
+        jEditorPane.setContentType("text/html");
+        JScrollPane scrollableTextArea = new JScrollPane(jEditorPane);
+        scrollableTextArea.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollableTextArea.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        panel.add(scrollableTextArea);
+
 
         this.responseTabbedPane.add(panel,"Preview");
         this.add(responseTabbedPane,BorderLayout.PAGE_END);
