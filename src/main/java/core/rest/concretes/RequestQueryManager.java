@@ -31,8 +31,19 @@ public final class RequestQueryManager implements RequestQuery {
 
     private OutputStream outputStream;
 
+    private  BufferedReader bufferedReader;
 
-    int status;
+    private ContentLang contentLang = ContentLang.EN;
+
+    private ContentType contentType = ContentType.JSON;
+
+    private boolean useCases = false;
+
+    private boolean doOutput = true;
+
+    private boolean doInput = true;
+
+    private final StringBuffer responseContent = new StringBuffer();
 
     private final QueryMemento memento = new QueryMemento();
 
@@ -56,34 +67,6 @@ public final class RequestQueryManager implements RequestQuery {
             requestAddress = "www."+requestAddress;
     }
 
-    @Override
-    public void request() throws URISyntaxException, IOException, InterruptedException {
-        urlPort = new URL(protocol.getValue()+requestAddress);
-        connection  = protocol.openConnection(urlPort,requestMethod);
-        connection.setUseCaches(false);
-        connection.setDoOutput(true);
-        connection.setRequestProperty("Content-Type",
-                ContentType.JSON.get());
-        connection.setRequestProperty("Content-Language", ContentLang.EN.get());
-        outputStream = new DataOutputStream(connection.getOutputStream());
-        outputStream.write(this.getParamsAsString(parameters).getBytes(StandardCharsets.UTF_8));
-        outputStream.flush();
-        outputStream.close();
-        connection.connect();
-
-
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuffer content = new StringBuffer();
-        while ((inputLine = in.readLine()) != null) {
-            content.append(inputLine);
-        }
-        System.out.println(content);
-        in.close();
-
-    }
-
     public  String getParamsAsString(Map<String, String> params) {
         StringBuilder result = new StringBuilder();
 
@@ -99,4 +82,34 @@ public final class RequestQueryManager implements RequestQuery {
                 ? resultString.substring(0, resultString.length() - 1)
                 : resultString;
     }
+
+    @Override
+    public void request() throws URISyntaxException, IOException, InterruptedException {
+        urlPort = new URL(protocol.getValue()+requestAddress);
+        connection  = protocol.openConnection(urlPort,requestMethod);
+
+        connection.setUseCaches(useCases);
+        connection.setDoOutput(doOutput);
+        connection.setDoInput(doInput);
+        connection.setRequestProperty("Content-Type", contentType.get());
+        connection.setRequestProperty("Content-Language", contentLang.get());
+
+        outputStream = new DataOutputStream(connection.getOutputStream());
+
+        outputStream.write(this.getParamsAsString(parameters).getBytes(StandardCharsets.UTF_8));
+        outputStream.flush();
+        outputStream.close();
+
+
+        bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        String inputLine;
+        while ((inputLine = bufferedReader.readLine()) != null)
+            responseContent.append(inputLine);
+
+        System.out.println(responseContent);
+        bufferedReader.close();
+    }
+
+
+
 }

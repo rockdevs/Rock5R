@@ -91,14 +91,8 @@ public class RestPanel extends JPanel implements Component {
         requestButton.addActionListener((e)->{
             try {
                 new RequestQueryManager(HttpProtocol.HTTP,"https://www.namazvaxti.org/",RequestMethod.GET,new HashMap<>()).request();
-            } catch (InvalidUrlAddressException ex) {
+            } catch (InvalidUrlAddressException | URISyntaxException | IOException | InterruptedException ex) {
                 ex.printStackTrace();
-            } catch (URISyntaxException uriSyntaxException) {
-                uriSyntaxException.printStackTrace();
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            } catch (InterruptedException interruptedException) {
-                interruptedException.printStackTrace();
             }
 
         });
