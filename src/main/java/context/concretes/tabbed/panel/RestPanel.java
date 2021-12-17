@@ -2,11 +2,11 @@ package context.concretes.tabbed.panel;
 
 import com.google.gson.*;
 import context.abstracts.Component;
+import context.concretes.utilities.ProgressBar;
 import core.response.RockResponse;
 import core.rest.abstracts.RequestQuery;
 import core.rest.concretes.RequestQueryManager;
 import core.rest.helper.HttpProtocol;
-import core.rest.helper.RequestMethod;
 import exception.InvalidUrlAddressException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -25,7 +25,7 @@ import org.json.*;
 public class RestPanel extends JPanel implements Component {
 
 
-
+    ProgressBar progressBar = new ProgressBar(0,2000);
 
     private final FlowLayout flowLayout = new FlowLayout(FlowLayout.LEFT);
     private final JTabbedPane topTabbedPane;
@@ -79,6 +79,7 @@ public class RestPanel extends JPanel implements Component {
     }
 
     private void initTFURL() throws IOException {
+
         JPanel basePanel = new JPanel(new BorderLayout());
         JPanel panel = new JPanel();
         panel.setLayout(flowLayout);
@@ -113,6 +114,7 @@ public class RestPanel extends JPanel implements Component {
         Image requestIcon = ImageIO.read(new File("src/main/java/icon/commit_dark.png"));
         requestButton.setIcon(new ImageIcon(requestIcon));
         requestButton.addActionListener((e)->{
+            progressBar.build();
             try {
                 protocol = (String) protocolJComboBox.getSelectedItem();
                 request =  (String)  requestMethod.getSelectedItem();
@@ -145,8 +147,9 @@ public class RestPanel extends JPanel implements Component {
                 String message  = "Unknown Exception :( Please contact Support";
                 JOptionPane.showMessageDialog(this,message);
             }
-            //java.net.UnknownHostException
         });
+
+
 
         panel.add(protocolJComboBox);
         panel.add(urlField);
@@ -154,6 +157,8 @@ public class RestPanel extends JPanel implements Component {
         panel.add(saveButton);
         panel.add(requestMethod);
         panel.add(requestButton);
+        panel.add(progressBar);
+
 
         basePanel.add(panel);
         this.add(basePanel);

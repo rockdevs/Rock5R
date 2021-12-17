@@ -20,6 +20,8 @@ public class Main {
 
         UIManager.put( "TextComponent.arc", 5 );
 
+
+
         UIManager.put( "Button.arc", 999 );
         UIManager.put( "Component.arc", 999 );
         UIManager.put( "ProgressBar.arc", 999 );
