@@ -1,5 +1,6 @@
 package context.concretes.tabbed.panel;
 
+import com.google.gson.*;
 import context.abstracts.Component;
 import core.response.RockResponse;
 import core.rest.abstracts.RequestQuery;
@@ -35,13 +36,16 @@ public class RestPanel extends JPanel implements Component {
     private JComboBox<?> protocolJComboBox;
     private JTextField urlField;
     private JComboBox<?> requestMethod;
-    private JTextArea responseArea;
-    private JTextArea headersArea;
+
     private String protocol;
     private String request;
     private RockResponse response;
     private JSONObject jsonObject;
     private JEditorPane jEditorPane;
+
+    private JTextArea responseArea;
+    private JTextArea headersArea;
+    private JTextArea bodyArea;
 
     {
         topTabbedPane = new JTabbedPane();
@@ -193,9 +197,24 @@ public class RestPanel extends JPanel implements Component {
     }
 
     private void initBody() {
-        JPanel  panel = new JPanel();
+        JPanel  panelBody = new JPanel();
+        bodyArea =  new JTextArea(10,105);
+        bodyArea.setTabSize(1);
+        bodyArea.setText("{\n   }");
+        bodyArea.setFont(new Font("Arial",Font.BOLD,14));
+        JScrollPane scrollableTextArea = new JScrollPane(bodyArea);
+        scrollableTextArea.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollableTextArea.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-        this.topTabbedPane.add(panel,"Body");
+        panelBody.add(scrollableTextArea);
+        JButton prettyButton = new JButton("Pretty");
+        prettyButton.addActionListener((e)->{
+            String prettyJson = prettyJson(bodyArea.getText());
+            bodyArea.setText(prettyJson);
+        });
+        panelBody.add(prettyButton,BorderLayout.SOUTH);
+        this.topTabbedPane.add(panelBody,"Body");
+        this.add(topTabbedPane,BorderLayout.CENTER);
     }
 
     private void initAuthorization(){
@@ -256,6 +275,20 @@ public class RestPanel extends JPanel implements Component {
         this.add(responseTabbedPane,BorderLayout.PAGE_END);
     }
 
-
+    private String prettyJson(String json){
+        if(json==null||json.equals("")||json.equals(" ")){
+            return "";
+        }
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonParser jp = new JsonParser();
+        JsonElement je = null;
+        try {
+            je = jp.parse(json);
+        }catch (JsonSyntaxException exception){
+            JOptionPane.showMessageDialog(this,"Oups! :( Text file not suitable for json syntax.\nThere must be a mistake somewhere");
+            return json;
+        }
+        return gson.toJson(je);
+    }
 
 }

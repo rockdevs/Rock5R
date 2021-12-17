@@ -65,6 +65,7 @@ public class MainFrame extends AbstractFrameInitializer {
 
     public void addRock() throws IOException {
         rockTab.addTab(new BaseTabbedPane());
+        this.rockTab.setSelectedIndex(rockTab.getTabCount()-1);
     }
 
 

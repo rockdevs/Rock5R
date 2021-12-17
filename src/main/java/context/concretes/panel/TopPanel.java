@@ -34,8 +34,9 @@ public class TopPanel extends JPanel implements Component {
         Image iconGenerate = ImageIO.read(new File("src/main/java/icon/compile_dark.png"));
         Image iconRefactor = ImageIO.read(new File("src/main/java/icon/forceRefresh_dark.png"));
         Image iconExecute = ImageIO.read(new File("src/main/java/icon/execute_dark.png"));
+        Image iconCloseTab = ImageIO.read(new File("src/main/java/icon/cancel_dark.png"));
 
-        JButton newProject = componentFactory.factoryButton("New");
+        JButton newProject = componentFactory.factoryButton("New Tab");
         newProject.setIcon(new ImageIcon(iconNewProject));
         newProject.addActionListener((e)->{
             try {
@@ -61,7 +62,14 @@ public class TopPanel extends JPanel implements Component {
         JButton refactor = componentFactory.factoryButton("Force Refresh");
         refactor.setIcon(new ImageIcon(iconRefactor));
 
+        JButton closeTab = componentFactory.factoryButton("Close Tab");
+        closeTab.setIcon(new ImageIcon(iconCloseTab));
+        closeTab.addActionListener((e -> {
+
+        }));
+
         this.add(newProject);
+        this.add(closeTab);
         this.add(openProject);
         this.add(execute);
         this.add(generate);
