@@ -35,4 +35,6 @@ public enum HttpProtocol {
     public String getValue() {
         return value;
     }
+
+
 }

@@ -48,11 +48,11 @@ public final class RequestQueryManager implements RequestQuery {
     private final QueryMemento memento = new QueryMemento();
 
 
-    public RequestQueryManager(HttpProtocol protocol, String requestAddress,
-                               RequestMethod requestMethod, Map<String, String> parameters) throws InvalidUrlAddressException {
-        this.protocol = protocol;
+    public RequestQueryManager(String protocol, String requestAddress,
+                               String requestMethod, Map<String, String> parameters) throws InvalidUrlAddressException {
+        this.protocol = convertProtocol(protocol);
         this.requestAddress = requestAddress.trim();
-        this.requestMethod = requestMethod;
+        this.requestMethod = convertRequestMethod(requestMethod);
         this.parameters = parameters;
 
         refactorRequestAddress();
@@ -84,7 +84,7 @@ public final class RequestQueryManager implements RequestQuery {
     }
 
     @Override
-    public void request() throws URISyntaxException, IOException, InterruptedException {
+    public String request() throws URISyntaxException, IOException, InterruptedException {
         urlPort = new URL(protocol.getValue()+requestAddress);
         connection  = protocol.openConnection(urlPort,requestMethod);
 
@@ -106,10 +106,28 @@ public final class RequestQueryManager implements RequestQuery {
         while ((inputLine = bufferedReader.readLine()) != null)
             responseContent.append(inputLine);
 
-        System.out.println(responseContent);
         bufferedReader.close();
+        return responseContent.toString();
     }
 
 
 
+    private HttpProtocol convertProtocol(String s) throws InvalidUrlAddressException {
+        return switch (s){
+            case "http://" -> HttpProtocol.HTTP;
+            case "https://"->HttpProtocol.HTTPS;
+            default -> throw new InvalidUrlAddressException();
+        };
+    }
+
+    private RequestMethod convertRequestMethod(String s) throws InvalidUrlAddressException {
+        return switch (s){
+            case "GET" -> RequestMethod.GET;
+            case "POST"->RequestMethod.POST;
+            case "PUT"->RequestMethod.PUT;
+            case "DELETE"->RequestMethod.DELETE;
+            case "HEAD"->RequestMethod.HEAD;
+            default -> throw new InvalidUrlAddressException();
+        };
+    }
 }

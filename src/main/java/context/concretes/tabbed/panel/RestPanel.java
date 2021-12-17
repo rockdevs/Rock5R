@@ -6,6 +6,8 @@ import core.rest.concretes.RequestQueryManager;
 import core.rest.helper.HttpProtocol;
 import core.rest.helper.RequestMethod;
 import exception.InvalidUrlAddressException;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -18,11 +20,22 @@ import java.util.HashMap;
 
 public class RestPanel extends JPanel implements Component {
 
-    private final FlowLayout flowLayout = new FlowLayout(FlowLayout.LEFT);
-    private JTabbedPane topTabbedPane;
-    private JTabbedPane responseTabbedPane;
-    private RequestQuery requestQuery;
 
+
+
+    private final FlowLayout flowLayout = new FlowLayout(FlowLayout.LEFT);
+    private final JTabbedPane topTabbedPane;
+    private final JTabbedPane responseTabbedPane;
+
+
+    private RequestQuery requestQuery;
+    private JComboBox<?> protocolJComboBox;
+    private JTextField urlField;
+    private JComboBox<?> requestMethod;
+    private JTextArea responseArea;
+    private String protocol;
+    private String request;
+    private String response;
 
     {
         topTabbedPane = new JTabbedPane();
@@ -60,11 +73,12 @@ public class RestPanel extends JPanel implements Component {
         JPanel panel = new JPanel();
         panel.setLayout(flowLayout);
 
-        String[] protocols = {"http://","https://"};
-        JComboBox<?> protocol = new JComboBox<>(protocols);
-        protocol.setSelectedIndex(0);
+        String[] protocols = {HttpProtocol.HTTP.getValue(),HttpProtocol.HTTPS.getValue()};
+        protocolJComboBox = new JComboBox<>(protocols);
+        protocolJComboBox.setSelectedIndex(0);
 
-        JTextField urlField = new JTextField();
+
+        urlField = new JTextField();
         urlField.setColumns(70);
 
         JButton historyButton = new JButton();
@@ -82,26 +96,34 @@ public class RestPanel extends JPanel implements Component {
         });
 
         String[] items = {"GET","POST","DELETE","HEAD","PUT"};
-        JComboBox<?> requests = new JComboBox<>(items);
-        requests.setSelectedIndex(0);
+        requestMethod = new JComboBox<>(items);
+        requestMethod.setSelectedIndex(0);
 
         JButton requestButton = new JButton("Request");
         Image requestIcon = ImageIO.read(new File("src/main/java/icon/commit_dark.png"));
         requestButton.setIcon(new ImageIcon(requestIcon));
         requestButton.addActionListener((e)->{
             try {
-                new RequestQueryManager(HttpProtocol.HTTP,"https://www.namazvaxti.org/",RequestMethod.GET,new HashMap<>()).request();
+                protocol = (String) protocolJComboBox.getSelectedItem();
+                request =  (String)  requestMethod.getSelectedItem();
+                requestQuery = new RequestQueryManager(protocol,urlField.getText(),request,new HashMap<>());
+                response = requestQuery.request();
+                Document doc = Jsoup.parse(response);
+                responseArea.setText(doc.toString());
             } catch (InvalidUrlAddressException | URISyntaxException | IOException | InterruptedException ex) {
                 ex.printStackTrace();
+                String message  = "Unknown Exception.Try to change Protocol or Request Method+\n" +
+                        "Maybe you should review the request address";
+                JOptionPane.showMessageDialog(this,message);
             }
 
         });
 
-        panel.add(protocol);
+        panel.add(protocolJComboBox);
         panel.add(urlField);
         panel.add(historyButton);
         panel.add(saveButton);
-        panel.add(requests);
+        panel.add(requestMethod);
         panel.add(requestButton);
 
         basePanel.add(panel);
@@ -165,9 +187,13 @@ public class RestPanel extends JPanel implements Component {
 
     private void initResponsePanel(){
         JPanel  panel = new JPanel(new BorderLayout());
-        JTextArea responseArea = new JTextArea();
-        responseArea.setRows(40);
-        panel.add(responseArea);
+
+
+        responseArea = new JTextArea(40,100);
+        JScrollPane scrollableTextArea = new JScrollPane(responseArea);
+        scrollableTextArea.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollableTextArea.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        panel.add(scrollableTextArea);
         this.responseTabbedPane.add(panel,"Response");
         this.add(responseTabbedPane,BorderLayout.PAGE_END);
         initPreview();

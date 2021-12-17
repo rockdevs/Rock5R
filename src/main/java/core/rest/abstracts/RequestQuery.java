@@ -6,6 +6,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 public interface RequestQuery {
-    void request() throws InvalidUrlAddressException, IOException, URISyntaxException, InterruptedException;
+    String request() throws InvalidUrlAddressException, IOException, URISyntaxException, InterruptedException;
 
 }
