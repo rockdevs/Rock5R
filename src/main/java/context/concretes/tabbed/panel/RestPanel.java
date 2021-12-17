@@ -110,10 +110,21 @@ public class RestPanel extends JPanel implements Component {
                 response = requestQuery.request();
                 Document doc = Jsoup.parse(response);
                 responseArea.setText(doc.toString());
-            } catch (InvalidUrlAddressException | URISyntaxException | IOException | InterruptedException ex) {
-                ex.printStackTrace();
-                String message  = "Unknown Exception.Try to change Protocol or Request Method+\n" +
-                        "Maybe you should review the request address";
+            }catch (URISyntaxException exception){
+                exception.printStackTrace();
+                String message  = "URI must not be null";
+                JOptionPane.showMessageDialog(this,message);
+            }catch (InterruptedException exception){
+                exception.printStackTrace();
+                String message  = "Interrupted Exception";
+                JOptionPane.showMessageDialog(this,message);
+            }catch (InvalidUrlAddressException exception){
+                exception.printStackTrace();
+                String message  = "URI must not be null";
+                JOptionPane.showMessageDialog(this,message);
+            }catch (IOException exception){
+                exception.printStackTrace();
+                String message  = "Unknown Exception";
                 JOptionPane.showMessageDialog(this,message);
             }
 
