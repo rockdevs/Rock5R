@@ -17,6 +17,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.SocketException;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -126,17 +127,13 @@ public class RestPanel extends JPanel implements Component {
                     responseArea.setText(doc.toString());
                     headersArea.setText(response.getHeadersFields().toString().replace(", ","\n"));
                 }
-            }catch (URISyntaxException exception){
+            }catch (InvalidUrlAddressException | URISyntaxException exception){
                 exception.printStackTrace();
-                String message  = "URI must not be null";
+                String message  = "There are any problems.URI must not be null or maybe URI must not be null";
                 JOptionPane.showMessageDialog(this,message);
-            }catch (InterruptedException exception){
+            } catch (InterruptedException exception){
                 exception.printStackTrace();
                 String message  = "Interrupted Exception";
-                JOptionPane.showMessageDialog(this,message);
-            }catch (InvalidUrlAddressException exception){
-                exception.printStackTrace();
-                String message  = "URI must not be null";
                 JOptionPane.showMessageDialog(this,message);
             }catch (UnknownHostException exception){
                 exception.printStackTrace();
@@ -145,6 +142,9 @@ public class RestPanel extends JPanel implements Component {
             }catch (IOException exception){
                 exception.printStackTrace();
                 String message  = "Unknown Exception :( Please contact Support";
+                if (exception instanceof SocketException){
+                    message  = "Socket Exception :( Maybe site was blocked or dangerous";
+                }
                 JOptionPane.showMessageDialog(this,message);
             }
         });

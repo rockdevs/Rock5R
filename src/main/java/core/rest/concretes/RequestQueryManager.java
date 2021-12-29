@@ -119,6 +119,7 @@ public final class RequestQueryManager implements RequestQuery {
         bufferedReader.close();
         response.setResponseMessage(responseContent.toString());
         response.setHeadersFields(connection.getHeaderFields());
+
         return response;
     }
 

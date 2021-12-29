@@ -4,6 +4,7 @@ import java.util.Map;
 
 public class RockResponse {
     private String responseMessage;
+
     private Map<String,?> headersFields;
 
     public String getResponseMessage() {
